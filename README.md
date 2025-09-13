@@ -46,7 +46,6 @@ Make sure you have the following installed:
   python -m auth_api
   ```
 
-
 ## Notes
   * This project uses JWT for stateless authentication
   * Future plans include refresh tokens and multi-device session tracking
@@ -59,10 +58,10 @@ AuthAPI/
 │   ├── controllers/
 │   ├── custom_exceptions/
 │   ├── handlers/
-│   └── models/
+│   ├── models/
 │   ├── services/
 │   ├── utils/
-│   ├── __init__.py
+│   └── __init__.py
 │
 ├── instance/auth.db
 ├── requirements.txt
