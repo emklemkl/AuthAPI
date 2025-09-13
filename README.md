@@ -52,7 +52,7 @@ Make sure you have the following installed:
   * Future plans include refresh tokens and multi-device session tracking
 
 ## Project Structure 
-
+```
 AuthAPI/
 │
 ├── app/
@@ -69,3 +69,4 @@ AuthAPI/
 ├── .env
 ├── app.py
 └── README.md
+```
