@@ -1,12 +1,13 @@
 # AuthAPI
 
-A lightweight authentication API built with Flask using JWT.
+> ⚠️ **Work in Progress**  
+> This project is currently under active development and may not be fully functional.
+
+A lightweight authentication API built with Flask using JWT. 
 
 ---
 
-## 🚀 Getting Started
-
-### 📦 Prerequisites
+## 📦 Prerequisites
 
 Make sure you have the following installed:
 
@@ -16,7 +17,7 @@ Make sure you have the following installed:
 
 ---
 
-### 🛠️ Installation
+## 🛠️ Installation
 
 1. **Clone the repository**
    ```
