@@ -35,7 +35,7 @@ Make sure you have the following installed:
    pip install -r requirements.txt
    ```
 ## ⚙️ Configuration
-1. **Set env vars in .env
+1. **Set env vars in .env**
   ```
   JWT_SECRET_KEY=<your-secret>
   DATABASE_URI=sqlite+pysqlite:///auth.db
