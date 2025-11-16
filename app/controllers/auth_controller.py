@@ -1,4 +1,9 @@
 from flask import Blueprint, request, jsonify, current_app
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from app.services.jwt_service import JwtService
+
+
+from app.custom_exceptions.user_exception import InvalidCredentialsError
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -10,21 +15,35 @@ def register():
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
-        req = request.json
-        user = current_app.user_service.get_user(req)
+        try:
+            req = request.json
 
-        token = current_app.user_service.login_user(user, req.get("password"))
-        return jsonify(
-                {
-                "access_token": token,
-                "token_type":"Bearer",
-                "expires_in":3600,
-                "user": {
-                        "id": user.id,
-                        "username": user.username
-                }}), 200
+            if not req or "password" not in req or not req["password"]: # TODO Pydantic for validation https://docs.pydantic.dev/latest/#why-use-pydantic https://pypi.org/project/flask-pydantic-api/
+                return jsonify({"msg": "Password is required"}), 400
 
-                # TODO "refresh_token":"tGzv3JOkF0XG5Qx2TlKWIA"
+            user = current_app.user_service.get_user(req)
+            user.check_password(req.get("password"))
+            token = JwtService.generate_access_token(user)
+            return jsonify(
+                    {
+                    "access_token": token,
+                    "token_type":"Bearer",
+                    "expires_in":3600,
+                    "user": {
+                            "id": user.id,
+                            "username": user.username
+                    }}), 200
+        except InvalidCredentialsError as e:
+            return jsonify({"msg": f"{e}"}), 401
+
+
+@auth_bp.route("/validate_token", methods=["POST"])
+@jwt_required()
+def jwt_token():
+        current_user = get_jwt_identity()
+        return jsonify(logged_in_as=current_user), 200
+
+
 @auth_bp.route("/get_all_users", methods=["GET"])
 def get_all_users():
         users = current_app.user_service.get_all_users()
@@ -37,19 +56,3 @@ def get_all_users():
 def delete():
         token = current_app.user_service.login_user(request.json)
         return jsonify({"msg": f"User: {token.username} logged in."}), 205
-
-# @auth_bp.route("/jwt_token", methods=["POST"])
-# def jwt_token():
-#         token = current_app.user_service.login_user(request.json)
-#         return jsonify({"msg": f"User: {token.username} logged in."}), 205
-
-@auth_bp.route("/jwt_token", methods=["POST"])
-def get_jwt_token():
-        print("-----")
-        print("-----")
-        print(request.json.get("id"))
-        print("-----")
-        print("-----")
-        token = current_app.user_service.get_all_user_token(request.json.get("id"))
-        return jsonify({"msg": f"User: logged in."}), 205
-

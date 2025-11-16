@@ -1,6 +1,3 @@
-from dataclasses import asdict
-
-from flask import request, jsonify, current_app, abort 
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import or_, select
 from app.utils.validators import passwords_match
@@ -12,23 +9,14 @@ class UserService():
         self.db_session = db_session
         self.jwt_service = jwt_service
 
-    def login_user(self, user, password):
-        if not user.check_password(password):
-            raise InvalidCredentialsError()
-        access_token = self.jwt_service._create_access_token(user)
-        return access_token
 
     def get_user(self, user_credentials_json):
         stmt = select(self.User).where(self.User.username == user_credentials_json.get("username"))
         result = self.db_session.execute(stmt)
         user = result.scalar_one_or_none()
         if user is None:
-            raise UserNotFoundError(user_credentials_json.get("username"), user_credentials_json.get("email")) #TODO Maybe replace this with InvalidCredentialsError in prod
-        return user
-
-    def check_password(self, user):
-        if not self.User.check_password(user.password):
             raise InvalidCredentialsError()
+        return user
 
     def get_all_users(self):
         users = self.db_session.execute(select(self.User)).scalars().all()

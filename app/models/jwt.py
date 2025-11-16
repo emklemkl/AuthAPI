@@ -1,5 +1,4 @@
 from datetime import datetime
-from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
 from app import db

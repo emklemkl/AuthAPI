@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import Integer, String
 from app import db
+from app.custom_exceptions.user_exception import InvalidCredentialsError
 from app.models.jwt import Jwt
 
 class User(db.Model):
@@ -19,5 +20,8 @@ class User(db.Model):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+        if not check_password_hash(self.password_hash, password):
+            print(self.password_hash)
+            print(password)
+            raise InvalidCredentialsError()
     

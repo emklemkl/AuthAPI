@@ -1,23 +1,23 @@
 from flask import Flask
-from flask import jsonify
-from flask import request
 
-from flask_jwt_extended import create_access_token
-from flask_jwt_extended import get_jwt_identity
-from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy import select
 
 from .controllers.auth_controller import auth_bp
-from .controllers.jwt_controller import jwt_bp
+from .custom_exceptions.user_exception import UserNotFoundError
+
 from .handlers.error_handlers import register_error_handlers
 
 from dotenv import load_dotenv
 from os import getenv
 
+from .services import jwt_service
+
+
 class Base(DeclarativeBase):
-  pass
+    pass
 
 load_dotenv()
 
@@ -30,13 +30,18 @@ def create_app():
     from .models.jwt import Jwt
     from .services.user_service import UserService
     from .services.jwt_service import JwtService
-    app.config["JWT_SECRET_KEY"] = getenv("JWT_SECRET_KEY") 
+    app.config["JWT_SECRET_KEY"] = getenv("JWT_SECRET_KEY")
     app.config['SQLALCHEMY_DATABASE_URI'] = getenv("DATABASE_URI")
     app.register_blueprint(auth_bp)
-    app.register_blueprint(jwt_bp)
     register_error_handlers(app)
     db.init_app(app)
     app.jwt_service = JwtService(Jwt, db.session)
     app.user_service = UserService(User, db.session, app.jwt_service)
-    JWTManager(app)
+    jwt = JWTManager(app)
+    @jwt.user_lookup_loader
+    def user_lookup(_jwt_header, jwt_data):
+        user = db.session.execute(select(User).where(User.username == jwt_data["sub"])).scalar_one_or_none()
+        if user.username == jwt_data["sub"]:
+            return user
+        raise UserNotFoundError(jwt_data["sub"])
     return app

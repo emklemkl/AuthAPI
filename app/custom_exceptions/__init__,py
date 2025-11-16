@@ -1,1 +1,0 @@
-from app.custom_exceptions.user_exception import UserNotFoundError
